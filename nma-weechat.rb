@@ -77,7 +77,6 @@ def notify(data, signal, signal_data)
     event = "Highlight"
   end
 
-  puts Weechat.config_get_plugin('priority')
   result = NMA.notify do |n|
     n.apikey = Weechat.config_get_plugin('apikey')
     n.priority = NMA::Priority::MODERATE
