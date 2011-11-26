@@ -38,6 +38,12 @@
 #       The API Key of your Notify My Android service.
 #       Default: Empty string
 #
+#   plugins.var.ruby.nma-weechat.interval
+#
+#       The interval between notifications. Doesn't notify if the last
+#       notification was within x seconds.
+#       Default: 60 seconds
+#
 
 require 'rubygems'
 require 'ruby-notify-my-android'
@@ -50,6 +56,7 @@ SCRIPT_LICENSE = 'APL'
 
 DEFAULTS = {
   'apikey'          => "",
+  'interval'        => "60",
 }
 
 def weechat_init
@@ -60,6 +67,8 @@ def weechat_init
       Weechat.config_set_plugin(option, def_value)
     end
   }
+
+  @last = Time.now - Weechat.config_get_plugin('interval').to_i
 
   Weechat.print("", "nma-weechat: Please set your API key with: /set plugins.var.ruby.nma-weechat.apikey")
 
@@ -77,12 +86,17 @@ def notify(data, signal, signal_data)
     event = "Highlight"
   end
 
-  result = NMA.notify do |n|
-    n.apikey = Weechat.config_get_plugin('apikey')
-    n.priority = NMA::Priority::MODERATE
-    n.application = "Weechat"
-    n.event = event
-    n.description = signal_data
+  if (Time.now - @last) > Weechat.config_get_plugin('interval').to_i
+    result = NMA.notify do |n|
+      n.apikey = Weechat.config_get_plugin('apikey')
+      n.priority = NMA::Priority::MODERATE
+      n.application = "Weechat"
+      n.event = event
+      n.description = signal_data
+    end
+    @last = Time.now
+  else
+    Weechat.print("", "nma-weechat: Skipping notification, too soon since last notification")
   end
 
   return Weechat::WEECHAT_RC_OK

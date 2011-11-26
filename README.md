@@ -33,6 +33,11 @@ plugins.var.ruby.nma-weechat.apikey
 The API Key of your Notify My Android service.
 Defaults to an empty string and must be set for nma-weechat to work.
 
+plugins.var.ruby.nma-weechat.interval
+
+The interval between notifications. Doesn't notify if the last notification 
+was within x seconds. Defaults to 60 seconds.
+
 Author
 ------
 
